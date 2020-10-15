@@ -1,3 +1,6 @@
+# WebTech™ Enterprises Project
+Web application project of "WebTech™ Enterprises" team, part of the WT course from ASE.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
