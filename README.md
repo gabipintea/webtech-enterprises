@@ -1,6 +1,17 @@
 # WebTech™ Enterprises Project
+
+Topic (#5):
+### Web app for taking notes during courses/labs
+
 Web application project of "WebTech™ Enterprises" team, part of the WT course from ASE.
 
+General requirements: https://drive.google.com/file/d/1X2rf4G3B-Yyw-DYNiRS5pds5i8VAVi83/view?usp=sharing
+
+Specific requirements: https://drive.google.com/file/d/1-lQSrjP5wduiBM9CET5Pd3-Z-F4c7beL/view?usp=sharing
+
+(@stud.ase.ro account needed)
+
+#### React app
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
