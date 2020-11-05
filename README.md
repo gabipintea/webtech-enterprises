@@ -11,6 +11,8 @@ Specific requirements: https://drive.google.com/file/d/1-lQSrjP5wduiBM9CET5Pd3-Z
 
 (@stud.ase.ro account needed)
 
+Figma Project (work in progress): https://www.figma.com/file/FjOIB2URk3j1PDIrrmAjrz/WebTech-Enterprises-Project?node-id=0%3A1
+
 #### React app
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
