@@ -13,6 +13,8 @@ Specific requirements: https://drive.google.com/file/d/1-lQSrjP5wduiBM9CET5Pd3-Z
 
 Figma Project (work in progress): https://www.figma.com/file/FjOIB2URk3j1PDIrrmAjrz/WebTech-Enterprises-Project?node-id=0%3A1
 
+Documentation (work in progress): https://docs.google.com/document/d/1a7NBI6Mis5Rw7BXhAUuL8b0s9LRRgOaMxAKqpOK4G-4/edit#heading=h.rr35eiio9pjq
+
 #### React app
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
