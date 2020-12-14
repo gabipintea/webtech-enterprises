@@ -20,7 +20,63 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-In the project directory, you can run:
+### API Server
+
+In the /src directory, you can start the API server:
+
+### `npx nodemon server.js`
+
+The API requests for database communication:
+### `users`
+Get the full list of users: `GET localhost:8080/users`
+
+Get a specific user: `GET localhost:8080/users/[id]`
+
+Add a user: `POST localhost:8080/users` with a JSON body containing the record data.
+
+Update a specific user: `PUT localhost:8080/users/[id]` with a JSON body containing the full updated record data.
+
+#### JSON fields
+
+username (string): required
+
+email (string): required
+
+password (string): required
+
+photo (blob): optional
+
+is_admin (boolean): required
+
+notes (string): optional
+
+
+Delete a specific user: `DELETE localhost:8080/users/[id]`
+
+### `notes`
+
+Same endpoints as users, but change 'users' with 'notes'
+
+### JSON fields
+
+title (string): required
+content (string): optional
+notebook (string): optional
+tags (string): optional
+public (boolean): required
+
+### `groups`
+
+Same endpoints as users, but change 'users' with 'groups'
+
+### JSON fields
+
+users (string): required
+notes (string): optional
+
+### React App
+
+In the project directory, you can start the app:
 
 ### `npm start`
 
