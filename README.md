@@ -22,6 +22,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ### API Server
 
+Pre-requisites:
+
+MariaDB/mySQL database server running on port 3306.
+
+`npm install` in project directory for installing the required express, mysql2, sequelize modules.
+
+
 In the /src directory, you can start the API server:
 
 ### `npx nodemon server.js`
