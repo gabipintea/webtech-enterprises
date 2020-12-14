@@ -60,9 +60,13 @@ Same endpoints as users, but change 'users' with 'notes'
 ### JSON fields
 
 title (string): required
+
 content (string): optional
+
 notebook (string): optional
+
 tags (string): optional
+
 public (boolean): required
 
 ### `groups`
@@ -72,6 +76,7 @@ Same endpoints as users, but change 'users' with 'groups'
 ### JSON fields
 
 users (string): required
+
 notes (string): optional
 
 ### React App
