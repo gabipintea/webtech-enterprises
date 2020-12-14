@@ -25,15 +25,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 Pre-requisites:
 
 MariaDB/mySQL database server running on port 3306.
+A database named `webtech_enterprises` having a privileged user named `webtech_enterprises` with the password (just for dev. purposes) `echipadesoc`.
 
 `npm install` in project directory for installing the required express, mysql2, sequelize modules.
-
 
 In the /src directory, you can start the API server:
 
 ### `npx nodemon server.js`
 
 The API requests for database communication:
+
+### `create`
+Create the required database blank tables: `GET localhost:8080/create`
+
 ### `users`
 Get the full list of users: `GET localhost:8080/users`
 
