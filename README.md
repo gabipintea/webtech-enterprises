@@ -105,16 +105,16 @@ Specific responses:
 
 #### Update a specific user: 
 
-`PUT /users/<id>` with the required `id` parameter of a user to be changed, and a JSON body containing the full updated record data.
+`PUT /users/<id>` with the required `id` parameter of a user to be changed, and a JSON body containing the updated record data.
 
 | Parameter | Description |
 | --- | --- |
-| username | (string - required) Unique username for a student |
-| email | (string - required) Unique email addres in the @stud.ase.ro domain |
-| password | (string - required) Alphanumerical password for accessing the private dashboard |
-| photo | (string - optional) The link where the profile photo resides on the server |
-| is_admin | (boolean - required) A true/false marker for marking the admins |
-| notes | (string - optional) A string, containing the notes IDs, associated with the user, delimited by `/` |
+| username | (string) Unique username for a student |
+| email | (string) Unique email addres in the @stud.ase.ro domain |
+| password | (string) Alphanumerical password for accessing the private dashboard |
+| photo | (string) The link where the profile photo resides on the server |
+| is_admin | (boolean) A true/false marker for marking the admins |
+| notes | (string) A string, containing the notes IDs, associated with the user, delimited by `/` |
 
 Specific responses:
 
@@ -189,15 +189,15 @@ Specific responses:
 
 #### Update a specific note: 
 
-`PUT /notes/<id>` with the required `id` parameter of a note to be changed, and a JSON body containing the full updated record data.
+`PUT /notes/<id>` with the required `id` parameter of a note to be changed, and a JSON body containing the updated record data.
 
 | Parameter | Description |
 | --- | --- |
-| title | (string - required) The title of the note |
-| content | (string - optional) The content in markdown format |
-| notebook | (string - optional) The notebook/category where the note should be categorized |
-| tags | (string - optional) A string, containing keywords, delimited by `/`, for the note to be searched for |
-| public | (boolean - required) A true/false marker for marking the public/shareable permission of the note |
+| title | (string) The title of the note |
+| content | (string) The content in markdown format |
+| notebook | (string) The notebook/category where the note should be categorized |
+| tags | (string) A string, containing keywords, delimited by `/`, for the note to be searched for |
+| public | (boolean) A true/false marker for marking the public/shareable permission of the note |
 
 Specific responses:
 
@@ -269,12 +269,12 @@ Specific responses:
 
 #### Update a specific group: 
 
-`PUT /groups/<id>` with the required `id` parameter of a group to be changed, and a JSON body containing the full updated record data.
+`PUT /groups/<id>` with the required `id` parameter of a group to be changed, and a JSON body containing the updated record data.
 
 | Parameter | Description |
 | --- | --- |
-| users | (string - required) A string, containing the users IDs of the users that are group members, delimited by `/` |
-| notes | (string - optional) A string, containing the notes IDs of the notes that can be accessed by the users of the group, delimited by `/` |
+| users | (string) A string, containing the users IDs of the users that are group members, delimited by `/` |
+| notes | (string) A string, containing the notes IDs of the notes that can be accessed by the users of the group, delimited by `/` |
 
 Specific responses:
 
