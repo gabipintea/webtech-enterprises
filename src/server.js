@@ -93,7 +93,7 @@ app.get('/create', async(req, res, next) => {
     }
 })
 
-
+//#region USERS
 //Users API
 app.get('/users', async(req, res, next) => {
     const query = {
@@ -122,7 +122,7 @@ app.post('/users', async(req, res, next) => {
         notes: req.body.notes
     }
 
-    if (!user.username || !user.email || !user.password || !user.is_admin || !user.notes) {
+    if (!user.username || !user.email || !user.password || (user.is_admin !== true && user.is_admin) !== false || !user.notes) {
         errors.push("Missing data. Please complete all fields!")
     }
 
@@ -146,7 +146,7 @@ app.post('/users', async(req, res, next) => {
 
     if (errors.length === 0) {
         try {
-            await User.create(req.body)
+            await User.create(user)
             res.status(201).json({ message: 'created' })
         } catch (error) {
             console.log(error)
@@ -178,8 +178,66 @@ app.put('/users/:sid', async(req, res, next) => {
     try {
         const user = await User.findByPk(req.params.sid)
         if (user) {
-            await user.update(req.body)
-            res.status(202).json({ message: 'accepted' })
+            const errors = [];
+
+            const newUser = {
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                photo: req.body.photo,
+                is_admin: req.body.is_admin,
+                notes: req.body.notes
+            }
+
+            if (!req.body.username) {
+                newUser.username = user.username
+            }
+
+            if (!req.body.email) {
+                newUser.email = user.email
+            }
+
+            if (!req.body.password) {
+                newUser.password = user.password
+            }
+
+            if (!req.body.photo) {
+                newUser.photo = user.photo
+            }
+
+            if (req.body.is_admin !== true && req.body.is_admin !== false) {
+                newUser.is_admin = user.is_admin
+            }
+
+            if (!req.body.notes) {
+                newUser.notes = user.notes
+            }
+
+            if (!/^[a-zA-Z0-9]+$/.test(newUser.username)) {
+                errors.push("Invalid username!")
+            }
+
+            if (!/[a-zA-Z0-9_\.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.]{2,5}$/.test(newUser.email)) {
+                errors.push("Invalid email!")
+            }
+
+            const exists_user = await User.findOne({ where: { username: newUser.username } });
+            if (exists_user) {
+                errors.push("Username already in use!");
+            }
+
+            const exists_email = await User.findOne({ where: { email: newUser.email } });
+            if (exists_email) {
+                errors.push("Email already in use!");
+            }
+
+            if (errors.length === 0) {
+                await newUser.update(req.body)
+                res.status(202).json({ message: 'accepted' })
+            } else {
+                res.status(400).send(errors)
+            }
+
         } else {
             res.status(404).json({ message: 'not found' })
         }
@@ -188,21 +246,24 @@ app.put('/users/:sid', async(req, res, next) => {
 
     }
 })
+
 app.delete('/users/:sid', async(req, res, next) => {
-    try {
-        const user = await User.findByPk(req.params.sid)
-        if (user) {
-            await user.destroy()
-            res.status(202).json({ message: 'deleted' })
-        } else {
-            res.status(404).json({ message: 'not found' })
+        try {
+            const user = await User.findByPk(req.params.sid)
+            if (user) {
+                await user.destroy()
+                res.status(202).json({ message: 'deleted' })
+            } else {
+                res.status(404).json({ message: 'not found' })
+            }
+        } catch (err) {
+            next(err)
+
         }
-    } catch (err) {
-        next(err)
+    })
+    //#endregion USERS
 
-    }
-})
-
+//#region NOTES
 //Notes API
 app.get('/notes', async(req, res, next) => {
     const query = {
@@ -230,11 +291,30 @@ app.get('/notes', async(req, res, next) => {
     }
 })
 app.post('/notes', async(req, res, next) => {
-    try {
-        await Note.create(req.body)
-        res.status(201).json({ message: 'created' })
-    } catch (err) {
-        next(err)
+    const errors = [];
+
+    const note = {
+        title: req.body.title,
+        content: req.body.content,
+        notebook: req.body.notebook,
+        tags: req.body.tags,
+        public: req.body.public,
+    }
+
+    if (!note.title || (note.public !== true && note.public !== false)) {
+        errors.push("Missing data. Title and privacy are mandatory!")
+    }
+
+    if (errors.length === 0) {
+        try {
+            await Note.create(note)
+            res.status(201).json({ message: 'created' })
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ message: "Note creation has failed (Server error)" })
+        }
+    } else {
+        res.status(400).send({ errors })
     }
 })
 
@@ -267,39 +347,27 @@ app.put('/notes/:sid', async(req, res, next) => {
     }
 })
 app.delete('/notes/:sid', async(req, res, next) => {
-    try {
-        const note = await Note.findByPk(req.params.sid)
-        if (note) {
-            await note.destroy()
-            res.status(202).json({ message: 'deleted' })
-        } else {
-            res.status(404).json({ message: 'not found' })
+        try {
+            const note = await Note.findByPk(req.params.sid)
+            if (note) {
+                await note.destroy()
+                res.status(202).json({ message: 'deleted' })
+            } else {
+                res.status(404).json({ message: 'not found' })
+            }
+        } catch (err) {
+            next(err)
+
         }
-    } catch (err) {
-        next(err)
+    })
+    //#endregion NOTES
 
-    }
-})
-
+//#region GROUPS
 //Groups API
 app.get('/groups', async(req, res, next) => {
     const query = {
-            where: {}
-        }
-        // if (req.query.filter) {
-        //   query.where.name = {
-        //     [Op.like]: `%${req.query.filter}%`
-        //   }
-        // }
-        // let pageSize = 10
-        // if (req.query.pageSize) {
-        //   pageSize = parseInt(req.query.pageSize)
-        // }
-        // if (req.query.page) {
-        //   const page = parseInt(req.query.page)
-        //   query.limit = pageSize
-        //   query.offset = page * pageSize
-        // }
+        where: {}
+    }
     try {
         const groups = await Group.findAll(query)
         res.status(200).json(groups)
@@ -362,8 +430,10 @@ app.delete('/groups/:sid', async(req, res, next) => {
 
 
 app.use((err, req, res, next) => {
-    console.warn(err)
-    res.status(500).json({ message: 'server error' })
-})
+        console.warn(err)
+        res.status(500).json({ message: 'server error' })
+    })
+    //#endregion GROUPS
+
 
 app.listen(8080)
