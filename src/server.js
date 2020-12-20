@@ -51,7 +51,7 @@ const Note = sequelize.define('note', {
         }
     },
     content: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: true
     },
     notebook: {
@@ -130,7 +130,7 @@ app.post('/users', async(req, res, next) => {
         errors.push("Invalid username!")
     }
 
-    if (!/[a-zA-Z0-9_\.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.]{2,5}$/.test(user.email)) {
+    if (!/[a-zA-Z0-9_\.-]+@stud.ase.ro$/.test(user.email)) {
         errors.push("Invalid email!")
     }
 
