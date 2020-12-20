@@ -18,7 +18,12 @@ Documentation (work in progress): https://docs.google.com/document/d/1a7NBI6Mis5
 
 ## API Server
 
-Pre-requisites:
+The present API is a RESTful interface, providing programmatic access to much of the data in the application database. It provides predictable URLs for accessing resources and uses built-in HTTP features to receive commands and return responses.
+
+This makes it easy to communicate with from a wide variety of environments, like command-line utilities, or the official application frontend (UI).
+The API accepts JSON or form-encoded content in requests and returns JSON content in all of its responses, including errors. Only the UTF-8 character encoding is supported for both requests and responses.
+
+### Pre-requisites:
 
 MariaDB/mySQL database server running on port 3306.
 A database named `webtech_enterprises` having a privileged user named `webtech_enterprises` with the password (just for dev. purposes) `echipadesoc`.
@@ -290,6 +295,8 @@ Specific responses:
 |---|---|
 | 202 | `message: deleted` |
 | 404 | `message: not found` |
+
+*For all endpoints: Besides the specific responses, all conventional errors and all conventional status codes are used, to represent unhandled errors, and to be used for debugging purposes.
 
 
 
