@@ -1,6 +1,8 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
+const multer = require('multer')
+const path = require('path')
 const Op = Sequelize.Op
 const cors = require('cors')
 const { ForeignKeyConstraintError } = require('sequelize')
@@ -8,6 +10,10 @@ const { ForeignKeyConstraintError } = require('sequelize')
 const sequelize = new Sequelize('webtech_enterprises', 'webtech_enterprises', 'echipadesoc', {
     dialect: 'mysql'
 })
+
+
+
+app.use(express.static('./public'))
 
 const User = sequelize.define('user', {
     username: {
@@ -111,8 +117,6 @@ app.get('/users', async(req, res, next) => {
 app.post('/users', async(req, res, next) => {
     const errors = [];
 
-
-
     const user = {
         username: req.body.username,
         email: req.body.email,
@@ -143,6 +147,13 @@ app.post('/users', async(req, res, next) => {
     if (exists_email) {
         errors.push("Email already in use!");
     }
+
+    // const storage = multer.diskStorage({
+    //     destination: './public/user_photos',
+    //     filename: function(req, file, cb){
+    //         cb(null, )
+    //     }
+    // })
 
     if (errors.length === 0) {
         try {
@@ -177,6 +188,7 @@ app.get('/users/:sid', async(req, res, next) => {
 app.put('/users/:sid', async(req, res, next) => {
     try {
         const user = await User.findByPk(req.params.sid)
+        console.log(user)
         if (user) {
             const errors = [];
 
@@ -190,49 +202,54 @@ app.put('/users/:sid', async(req, res, next) => {
             }
 
             if (!req.body.username) {
-                newUser.username = user.username
+                newUser.username = user.dataValues.username
             }
 
             if (!req.body.email) {
-                newUser.email = user.email
+                newUser.email = user.dataValues.email
             }
 
             if (!req.body.password) {
-                newUser.password = user.password
+                newUser.password = user.dataValues.password
             }
 
             if (!req.body.photo) {
-                newUser.photo = user.photo
+                newUser.photo = user.dataValues.photo
             }
 
             if (req.body.is_admin !== true && req.body.is_admin !== false) {
-                newUser.is_admin = user.is_admin
+                newUser.is_admin = user.dataValues.is_admin
             }
 
             if (!req.body.notes) {
-                newUser.notes = user.notes
+                newUser.notes = user.dataValues.notes
             }
 
             if (!/^[a-zA-Z0-9]+$/.test(newUser.username)) {
                 errors.push("Invalid username!")
             }
 
-            if (!/[a-zA-Z0-9_\.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.]{2,5}$/.test(newUser.email)) {
+            if (!/[a-zA-Z0-9_\.-]+@stud.ase.ro$/.test(newUser.email)) {
                 errors.push("Invalid email!")
             }
 
-            const exists_user = await User.findOne({ where: { username: newUser.username } });
-            if (exists_user) {
-                errors.push("Username already in use!");
+
+            if (req.body.username) {
+                const exists_user = await User.findOne({ where: { username: newUser.username } });
+                if (exists_user) {
+                    errors.push("Username already in use!");
+                }
             }
 
-            const exists_email = await User.findOne({ where: { email: newUser.email } });
-            if (exists_email) {
-                errors.push("Email already in use!");
+            if (req.body.email) {
+                const exists_email = await User.findOne({ where: { email: newUser.email } });
+                if (exists_email) {
+                    errors.push("Email already in use!");
+                }
             }
 
             if (errors.length === 0) {
-                await newUser.update(req.body)
+                await User.update(newUser, { where: { id: req.params.sid } })
                 res.status(202).json({ message: 'accepted' })
             } else {
                 res.status(400).send(errors)
@@ -267,22 +284,8 @@ app.delete('/users/:sid', async(req, res, next) => {
 //Notes API
 app.get('/notes', async(req, res, next) => {
     const query = {
-            where: {}
-        }
-        // if (req.query.filter) {
-        //   query.where.name = {
-        //     [Op.like]: `%${req.query.filter}%`
-        //   }
-        // }
-        // let pageSize = 10
-        // if (req.query.pageSize) {
-        //   pageSize = parseInt(req.query.pageSize)
-        // }
-        // if (req.query.page) {
-        //   const page = parseInt(req.query.page)
-        //   query.limit = pageSize
-        //   query.offset = page * pageSize
-        // }
+        where: {}
+    }
     try {
         const notes = await Note.findAll(query)
         res.status(200).json(notes)
@@ -333,19 +336,53 @@ app.get('/notes/:sid', async(req, res, next) => {
 })
 
 app.put('/notes/:sid', async(req, res, next) => {
-    try {
-        const note = await Note.findByPk(req.params.sid)
-        if (note) {
-            await note.update(req.body)
-            res.status(202).json({ message: 'accepted' })
-        } else {
-            res.status(404).json({ message: 'not found' })
-        }
-    } catch (err) {
-        next(err)
+    const note = await Note.findByPk(req.params.sid)
+    if (note) {
 
+
+        const newNote = {
+            title: req.body.title,
+            content: req.body.content,
+            notebook: req.body.notebook,
+            tags: req.body.tags,
+            public: req.body.public,
+        }
+
+        if (!req.body.title) {
+            newNote.title = note.dataValues.title
+        }
+
+        if (!req.body.content) {
+            newNote.content = note.dataValues.content
+        }
+
+        if (!req.body.notebook) {
+            newNote.notebook = note.dataValues.notebook
+        }
+
+        if (!req.body.tags) {
+            newNote.tags = note.dataValues.tags
+        }
+
+        if (req.body.public !== true && req.body.public !== false) {
+            newNote.public = note.dataValues.public
+        }
+
+
+        try {
+            await Note.update(newNote, { where: { id: req.params.sid } })
+            res.status(202).json({ message: 'updated' })
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ message: "Note update has failed (Server error)" })
+        }
+
+
+    } else {
+        res.status(404).send({ message: "Note not found" })
     }
 })
+
 app.delete('/notes/:sid', async(req, res, next) => {
         try {
             const note = await Note.findByPk(req.params.sid)
@@ -377,11 +414,27 @@ app.get('/groups', async(req, res, next) => {
 })
 
 app.post('/groups', async(req, res, next) => {
-    try {
-        await Group.create(req.body)
-        res.status(201).json({ message: 'created' })
-    } catch (err) {
-        next(err)
+    const errors = [];
+
+    const group = {
+        users: req.body.users,
+        notes: req.body.notes
+    }
+
+    if (!group.users) {
+        errors.push("Missing data. Users are needed to define group!")
+    }
+
+    if (errors.length === 0) {
+        try {
+            await Group.create(group)
+            res.status(201).json({ message: 'created' })
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ message: "Group creation has failed (Server error)" })
+        }
+    } else {
+        res.status(400).send({ errors })
     }
 })
 
@@ -400,19 +453,34 @@ app.get('/groups/:sid', async(req, res, next) => {
 })
 
 app.put('/groups/:sid', async(req, res, next) => {
-    try {
-        const group = await Group.findByPk(req.params.sid)
-        if (group) {
-            await group.update(req.body)
-            res.status(202).json({ message: 'accepted' })
-        } else {
-            res.status(404).json({ message: 'not found' })
+    const group = await Group.findByPk(req.params.sid)
+    if (group) {
+
+        const newGroup = {
+            users: req.body.users,
+            notes: req.body.notes
         }
-    } catch (err) {
-        next(err)
+
+        if (!req.body.users) {
+            newGroup.users = group.dataValues.users
+        }
+
+        if (!req.body.notes) {
+            newGroup.notes = group.dataValues.notes
+        }
+
+        try {
+            await Group.update(newGroup, { where: { id: req.params.sid } })
+            res.status(202).json({ message: 'updated' })
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ message: "Group update has failed (Server error)" })
+        }
+
 
     }
 })
+
 app.delete('/groups/:sid', async(req, res, next) => {
     try {
         const group = await Group.findByPk(req.params.sid)
@@ -428,12 +496,13 @@ app.delete('/groups/:sid', async(req, res, next) => {
     }
 })
 
+//#endregion GROUPS
 
 app.use((err, req, res, next) => {
-        console.warn(err)
-        res.status(500).json({ message: 'server error' })
-    })
-    //#endregion GROUPS
+    console.warn(err)
+    res.status(500).json({ message: 'server error' })
+})
+
 
 
 app.listen(8080)
