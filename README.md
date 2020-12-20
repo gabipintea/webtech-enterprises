@@ -27,44 +27,113 @@ Pre-requisites:
 MariaDB/mySQL database server running on port 3306.
 A database named `webtech_enterprises` having a privileged user named `webtech_enterprises` with the password (just for dev. purposes) `echipadesoc`.
 
-`npm install` in project directory for installing the required express, mysql2, sequelize modules.
+Run `npm install` in the project directory for installing the required express, mysql2, sequelize modules.
 
 In the /src directory, you can start the API server:
+
+Recommended command to be run:
 
 ### `npx nodemon server.js`
 
 The API requests for database communication:
 
-### `create`
-Create the required database blank tables: `GET localhost:8080/create`
+#### Database creation
 
-### `users`
-Get the full list of users: `GET localhost:8080/users`
+The following request will create the database and the required tables (users, groups, notes) with the required fields.
 
-Get a specific user: `GET localhost:8080/users/[id]`
+Create the required database blank tables: `GET /create`
 
-Add a user: `POST localhost:8080/users` with a JSON body containing the record data.
+Specific responses:
 
-Update a specific user: `PUT localhost:8080/users/[id]` with a JSON body containing the full updated record data.
+| Status | Response |
+|---|---|
+| 201 | message: created |
 
-#### JSON fields
+### `Users`
+| Request |
+| --- |
+| `GET /users` |
+| `GET /users/<id>` |
+| `POST /users` |
+| `PUT /users/<id>` |
+| `DELETE /users/<id>` |
 
-username (string): required
+#### Get the full list of users:
 
-email (string): required
+`GET /users`
 
-password (string): required
+Specific responses:
 
-photo (blob): optional
+| Status | Response |
+|---|---|
+| 200 | JSON formatted array, containing all the users |
 
-is_admin (boolean): required
+#### Get a specific user:
 
-notes (string): optional
+`GET /users/<id>` with the required `id` parameter of the requested user.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 200 | JSON formatted object, containing the user with the parameter `id` |
+| 404 | `message: not found` |
+
+#### Add a user: 
+
+`POST /users` with a JSON body containing the record data.
+
+| Parameter | Description |
+| --- | --- |
+| username | (string - required) Unique username for a student |
+| email | (string - required) Unique email addres in the @stud.ase.ro domain |
+| password | (string - required) Alphanumerical password for accessing the private dashboard |
+| photo | (string - optional) The link where the profile photo resides on the server |
+| is_admin | (boolean - required) A true/false marker for marking the admins |
+| notes | (string - optional) A string, containing the notes IDs, associated with the user, delimited by `/` |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 201 | `message: created` |
+| 500 | `message: User creation has failed (Server error)` |
+| 400 | JSON formatted array, containing all the input validation errors |
+
+#### Update a specific user: 
+
+`PUT /users/<id>` with the required `id` parameter of a user to be changed, and a JSON body containing the full updated record data.
+
+| Parameter | Description |
+| --- | --- |
+| username | (string - required) Unique username for a student |
+| email | (string - required) Unique email addres in the @stud.ase.ro domain |
+| password | (string - required) Alphanumerical password for accessing the private dashboard |
+| photo | (string - optional) The link where the profile photo resides on the server |
+| is_admin | (boolean - required) A true/false marker for marking the admins |
+| notes | (string - optional) A string, containing the notes IDs, associated with the user, delimited by `/` |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: accepted` |
+| 404 | `message: not found` |
+| 400 | JSON formatted array, containing all the input validation errors |
 
 
-Delete a specific user: `DELETE localhost:8080/users/[id]`
+#### Delete a specific user: 
 
-### `notes`
+`DELETE /users/<id>` with the required `id` parameter of a user to be deleted.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: deleted` |
+| 404 | `message: not found` |
+
+### `Notes`
 
 Same endpoints as users, but change 'users' with 'notes'
 
@@ -80,7 +149,7 @@ tags (string): optional
 
 public (boolean): required
 
-### `groups`
+### `Groups`
 
 Same endpoints as users, but change 'users' with 'groups'
 
