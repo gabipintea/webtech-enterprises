@@ -15,12 +15,8 @@ Figma Project (work in progress): https://www.figma.com/file/FjOIB2URk3j1PDIrrmA
 
 Documentation (work in progress): https://docs.google.com/document/d/1a7NBI6Mis5Rw7BXhAUuL8b0s9LRRgOaMxAKqpOK4G-4/edit?usp=sharing
 
-#### React app
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
-
-### API Server
+## API Server
 
 Pre-requisites:
 
@@ -37,11 +33,13 @@ Recommended command to be run:
 
 The API requests for database communication:
 
-#### Database creation
+### Database creation
 
 The following request will create the database and the required tables (users, groups, notes) with the required fields.
 
-Create the required database blank tables: `GET /create`
+Create the required database blank tables: 
+
+`GET /create`
 
 Specific responses:
 
@@ -135,31 +133,171 @@ Specific responses:
 
 ### `Notes`
 
-Same endpoints as users, but change 'users' with 'notes'
+| Request |
+| --- |
+| `GET /notes` |
+| `GET /notes/<id>` |
+| `POST /notes` |
+| `PUT /notes/<id>` |
+| `DELETE /notes/<id>` |
 
-### JSON fields
+#### Get the full list of notes:
 
-title (string): required
+`GET /notes`
 
-content (string): optional
+Specific responses:
 
-notebook (string): optional
+| Status | Response |
+|---|---|
+| 200 | JSON formatted array, containing all the notes |
 
-tags (string): optional
+#### Get a specific note:
 
-public (boolean): required
+`GET /notes/<id>` with the required `id` parameter of the requested note.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 200 | JSON formatted object, containing the note with the parameter `id` |
+| 404 | `message: not found` |
+
+#### Add a note: 
+
+`POST /notes` with a JSON body containing the record data.
+
+| Parameter | Description |
+| --- | --- |
+| title | (string - required) The title of the note |
+| content | (string - optional) The content in markdown format |
+| notebook | (string - optional) The notebook/category where the note should be categorized |
+| tags | (string - optional) A string, containing keywords, delimited by `/`, for the note to be searched for |
+| public | (boolean - required) A true/false marker for marking the public/shareable permission of the note |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 201 | `message: created` |
+| 500 | `message: Note creation has failed (Server error)` |
+| 400 | JSON formatted array, containing all the input validation errors |
+
+#### Update a specific note: 
+
+`PUT /notes/<id>` with the required `id` parameter of a note to be changed, and a JSON body containing the full updated record data.
+
+| Parameter | Description |
+| --- | --- |
+| title | (string - required) The title of the note |
+| content | (string - optional) The content in markdown format |
+| notebook | (string - optional) The notebook/category where the note should be categorized |
+| tags | (string - optional) A string, containing keywords, delimited by `/`, for the note to be searched for |
+| public | (boolean - required) A true/false marker for marking the public/shareable permission of the note |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: accepted` |
+| 404 | `message: not found` |
+| 400 | JSON formatted array, containing all the input validation errors |
+
+
+#### Delete a specific note: 
+
+`DELETE /notes/<id>` with the required `id` parameter of a note to be deleted.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: deleted` |
+| 404 | `message: not found` |
 
 ### `Groups`
 
-Same endpoints as users, but change 'users' with 'groups'
+| Request |
+| --- |
+| `GET /groups` |
+| `GET /groups/<id>` |
+| `POST /groups` |
+| `PUT /groups/<id>` |
+| `DELETE /groups/<id>` |
 
-### JSON fields
+#### Get the full list of groups:
 
-users (string): required
+`GET /groups`
 
-notes (string): optional
+Specific responses:
 
-### React App
+| Status | Response |
+|---|---|
+| 200 | JSON formatted array, containing all the groups |
+
+#### Get a specific group:
+
+`GET /groups/<id>` with the required `id` parameter of the requested group.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 200 | JSON formatted object, containing the group with the parameter `id` |
+| 404 | `message: not found` |
+
+#### Add a group: 
+
+`POST /groups` with a JSON body containing the record data.
+
+| Parameter | Description |
+| --- | --- |
+| users | (string - required) A string, containing the users IDs of the users that are group members, delimited by `/` |
+| notes | (string - optional) A string, containing the notes IDs of the notes that can be accessed by the users of the group, delimited by `/` |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 201 | `message: created` |
+| 500 | `message: Group creation has failed (Server error)` |
+| 400 | JSON formatted array, containing all the input validation errors |
+
+#### Update a specific group: 
+
+`PUT /groups/<id>` with the required `id` parameter of a group to be changed, and a JSON body containing the full updated record data.
+
+| Parameter | Description |
+| --- | --- |
+| users | (string - required) A string, containing the users IDs of the users that are group members, delimited by `/` |
+| notes | (string - optional) A string, containing the notes IDs of the notes that can be accessed by the users of the group, delimited by `/` |
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: accepted` |
+| 404 | `message: not found` |
+| 400 | JSON formatted array, containing all the input validation errors |
+
+
+#### Delete a specific group: 
+
+`DELETE /groups/<id>` with the required `id` parameter of a group to be deleted.
+
+Specific responses:
+
+| Status | Response |
+|---|---|
+| 202 | `message: deleted` |
+| 404 | `message: not found` |
+
+
+
+## React App
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Available Scripts
 
 In the project directory, you can start the app:
 
