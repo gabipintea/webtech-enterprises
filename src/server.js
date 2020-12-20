@@ -131,6 +131,10 @@ app.post('/users', async(req, res, next) => {
         errors.push("Invalid email!")
     }
 
+    if (!/^[0-9\/]+$/.test(user.notes)) {
+        errors.push("Invalid notes format!")
+    }
+
     const exists_user = await User.findOne({ where: { username: req.body.username } });
     if (exists_user) {
         errors.push("Username already in use!");
@@ -219,6 +223,10 @@ app.put('/users/:sid', async(req, res, next) => {
                 errors.push("Invalid email!")
             }
 
+            if (!/^[0-9\/]+$/.test(user.notes)) {
+                errors.push("Invalid notes format!")
+            }
+
 
             if (req.body.username) {
                 const exists_user = await User.findOne({ where: { username: newUser.username } });
@@ -294,6 +302,10 @@ app.post('/notes', async(req, res, next) => {
         errors.push("Missing data. Title and privacy are mandatory!")
     }
 
+    if (!/^[0-9A-Za-z-_\/]+$/.test(note.tags)) {
+        errors.push("Invalid tags format!")
+    }
+
     if (errors.length === 0) {
         try {
             await Note.create(note)
@@ -324,7 +336,7 @@ app.get('/notes/:sid', async(req, res, next) => {
 app.put('/notes/:sid', async(req, res, next) => {
     const note = await Note.findByPk(req.params.sid)
     if (note) {
-
+        let errors = []
 
         const newNote = {
             title: req.body.title,
@@ -350,19 +362,26 @@ app.put('/notes/:sid', async(req, res, next) => {
             newNote.tags = note.dataValues.tags
         }
 
+        if (!/^[0-9A-Za-z-_\/]+$/.test(note.tags)) {
+            errors.push("Invalid tags format!")
+        }
+
+
         if (req.body.public !== true && req.body.public !== false) {
             newNote.public = note.dataValues.public
         }
 
-
-        try {
-            await Note.update(newNote, { where: { id: req.params.sid } })
-            res.status(202).json({ message: 'updated' })
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ message: "Note update has failed (Server error)" })
+        if (errors.length === 0) {
+            try {
+                await Note.update(newNote, { where: { id: req.params.sid } })
+                res.status(202).json({ message: 'updated' })
+            } catch (error) {
+                console.log(error)
+                res.status(500).send({ message: "Note update has failed (Server error)" })
+            }
+        } else {
+            res.status(400).send({ errors })
         }
-
 
     } else {
         res.status(404).send({ message: "Note not found" })
@@ -411,6 +430,14 @@ app.post('/groups', async(req, res, next) => {
         errors.push("Missing data. Users are needed to define group!")
     }
 
+    if (!/^[0-9\/]+$/.test(group.users)) {
+        errors.push("Invalid users format!")
+    }
+
+    if (!/^[0-9\/]+$/.test(group.notes)) {
+        errors.push("Invalid notes format!")
+    }
+
     if (errors.length === 0) {
         try {
             await Group.create(group)
@@ -442,6 +469,8 @@ app.put('/groups/:sid', async(req, res, next) => {
     const group = await Group.findByPk(req.params.sid)
     if (group) {
 
+        let errors = []
+
         const newGroup = {
             users: req.body.users,
             notes: req.body.notes
@@ -451,18 +480,30 @@ app.put('/groups/:sid', async(req, res, next) => {
             newGroup.users = group.dataValues.users
         }
 
+        if (!/^[0-9\/]+$/.test(group.users)) {
+            errors.push("Invalid users format!")
+        }
+
         if (!req.body.notes) {
             newGroup.notes = group.dataValues.notes
         }
 
-        try {
-            await Group.update(newGroup, { where: { id: req.params.sid } })
-            res.status(202).json({ message: 'updated' })
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({ message: "Group update has failed (Server error)" })
+        if (!/^[0-9\/]+$/.test(group.notes)) {
+            errors.push("Invalid notes format!")
         }
 
+
+        if (errors.length === 0) {
+            try {
+                await Group.update(newGroup, { where: { id: req.params.sid } })
+                res.status(202).json({ message: 'updated' })
+            } catch (error) {
+                console.log(error)
+                res.status(500).send({ message: "Group update has failed (Server error)" })
+            }
+        } else {
+            res.status(400).send(errors)
+        }
 
     }
 })
