@@ -130,7 +130,7 @@ app.post('/users', async(req, res, next) => {
         errors.push("Invalid username!")
     }
 
-    if (!/[a-zA-Z0-9_\.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.]{2,5}$/.test(user.email)) {
+    if (!/[a-zA-Z0-9_\.-]+@stud.ase.ro$/.test(user.email)) {
         errors.push("Invalid email!")
     }
 
@@ -436,4 +436,4 @@ app.use((err, req, res, next) => {
     //#endregion GROUPS
 
 
-app.listen(5000)
+app.listen(8080)
