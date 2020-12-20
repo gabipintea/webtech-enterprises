@@ -48,7 +48,7 @@
   .messageSpan {
     font: 40px/68px Bree Serif;
     text-align: center;
-    margin-top: 73px;
+    margin: auto;
     color: var(--white)
   }
   

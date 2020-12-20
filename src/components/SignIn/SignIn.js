@@ -9,10 +9,8 @@ const SignIn = () => {
     <div>
       <div className="signContainer" id="intro">
         <div className="signGroup" id="introGroup">
-          <div className="logoContainer">
-          </div>
           <div className="messageSpan">
-            Bine ai venit pe BT24 Internet Banking! Disponibil 24/7
+           WebTech™ Enterprises
           </div>
         </div>
       </div>
@@ -20,18 +18,18 @@ const SignIn = () => {
         <div className="signGroup">
           <div className="logoContainer">
           </div>
-          <div className="messageSpan">Te rugăm să te autentifici</div>
+          <div className="messageSpan">LOG IN</div>
           <div className="inputFields">
             <div className="inputField">
               <Input
                 type="text"
-                defaultValue="Id de logare (se completează cu majuscule)"
+                defaultValue="username"
               />
             </div>
             <div className="inputField" id="second">
-              <Input type="text" defaultValue="Parolă/Token" />
+              <Input type="password" defaultValue="password" />
             </div>
-            <Link to="/sms">
+            <Link to="/dash">
               <div className="buttonContainer">
                 <ActionButton text="CONTINUĂ" />
               </div>
