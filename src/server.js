@@ -51,7 +51,7 @@ const Note = sequelize.define('note', {
         }
     },
     content: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: true
     },
     notebook: {
