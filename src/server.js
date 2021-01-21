@@ -381,7 +381,7 @@ app.get('/notes/user/:semail', async (req, res, next) => {
         next(err)
     }
 })
-app.post('/notes', async (req, res, next) => {
+app.post('/notes/user/:semail', async (req, res, next) => {
     const errors = [];
 
     const note = {
@@ -396,13 +396,36 @@ app.post('/notes', async (req, res, next) => {
         errors.push("Missing data. Title and privacy are mandatory!")
     }
 
-    if (!/^[0-9A-Za-z-_\/]+$/.test(note.tags)) {
-        errors.push("Invalid tags format!")
-    }
+        
 
     if (errors.length === 0) {
         try {
-            await Note.create(note)
+            var noteId = await Note.create(note)
+
+            const userQuery = {
+                where: {
+                    email: req.params.semail
+                }
+            }
+            try {
+                const user = await User.findAll(userQuery)
+                var userNotes;
+                if(user[0].notes === null) {
+                    userNotes = "" + noteId.dataValues.id;
+                } else {
+                    userNotes = user[0].notes + ',' + noteId.dataValues.id;
+                }       
+                
+
+                const newUser = {                    
+                    notes: userNotes                    
+                }               
+                await User.update(newUser, { where: { id: user[0].id } })       
+        
+            } catch(e) {
+                next(e)
+            }
+
             res.status(201).json({ message: 'created' })
         } catch (error) {
             console.log(error)
