@@ -28,9 +28,17 @@
 }
 
 .profilePic {
+  display: flex;
   width: 85px;
   height: 85px;
-  content: url(../assets/profile.png);
+  object-fit: cover;
+  border-radius: 100px;
+}
+
+.profilePic > img{
+  display: flex;
+  width: 85px;
+  height: 85px;
   object-fit: cover;
   border-radius: 100px;
 }

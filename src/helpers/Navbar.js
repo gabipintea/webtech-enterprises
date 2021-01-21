@@ -24,12 +24,13 @@ const Navbar = () => {
       tagStyle: "accounts",
     },
   ];
-  const [trigger, setTrigger] = useState()
+  const [trigger, setTrigger] = useState(0)
   const [clickId, setId] = useState();
   const [content, setContent] = useState(<DemoPage />);
+  const [userData] = useState(JSON.parse(localStorage.getItem("user")))
 
   useEffect(() => {
-    axios.get("/notes").then((resp) => {
+    axios.get("/notes/user/" + userData.data.email).then((resp) => {
       setList(resp.data);
     });
     console.log(op_list);
@@ -42,8 +43,10 @@ const Navbar = () => {
           <div className="navGroup">
             <div className="accountContainer">
               <div className="navInfo">
-                <div className="profilePic" />
-                <div className="navUser">Ion Popescu</div>
+                <div className="profilePic">
+                  <img src={userData.data.picture} />
+                  </div>
+                <div className="navUser">{userData.data.name}</div>
               </div>
             </div>
             <div
