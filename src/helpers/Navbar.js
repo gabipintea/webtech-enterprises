@@ -9,11 +9,10 @@ import axios from "axios";
 const Navbar = () => {
   const [op_list, setList] = useState();
 
-
   const NAV_DATA = [
     {
       id: 0,
-      pageName: "Notes",
+      pageName: "Notebook",
       tagStyle: "accounts",
       isDropdown: true,
       list: op_list,
@@ -24,14 +23,30 @@ const Navbar = () => {
       tagStyle: "accounts",
     },
   ];
-  const [trigger, setTrigger] = useState(0)
+
+  const [userData] = useState(JSON.parse(localStorage.getItem("user")));
+  const [trigger, setTrigger] = useState();
   const [clickId, setId] = useState();
   const [content, setContent] = useState(<DemoPage />);
-  const [userData] = useState(JSON.parse(localStorage.getItem("user")))
 
   useEffect(() => {
     axios.get("/notes/user/" + userData.data.email).then((resp) => {
-      setList(resp.data);
+      var org = [];
+      for(let i = 0; i < resp.data.length; i++){
+        if (!org.find(x => x.title === resp.data[i].notebook)) {
+          org.push({
+            title: resp.data[i].notebook,
+            content: [resp.data[i]],
+          });
+        } else {
+          org.find(x => x.title === resp.data[i].notebook).content = [
+            ...org.find(x => x.title === resp.data[i].notebook).content,
+            resp.data[i],
+          ];
+        }
+      }
+      console.log(org);
+      setList(org);
     });
     console.log(op_list);
   }, [trigger]);
@@ -45,7 +60,7 @@ const Navbar = () => {
               <div className="navInfo">
                 <div className="profilePic">
                   <img src={userData.data.picture} />
-                  </div>
+                </div>
                 <div className="navUser">{userData.data.name}</div>
               </div>
             </div>

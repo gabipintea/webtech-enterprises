@@ -47,7 +47,7 @@ const NavPage = (props) => {
               note = {item}
               id={id}
               navStyle="dropItem"
-              isNote={true}
+              isNote={false}
               setContent={setContent}
             />
           );

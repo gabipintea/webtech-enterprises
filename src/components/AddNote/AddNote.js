@@ -7,13 +7,14 @@ import { useHistory } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
 
 const AddNote = (props) => {
-  const { edit = false} = props;
+  const { edit = false } = props;
   const redirect = useHistory();
   const [value, setValue] = useState("");
   const [request, setRequest] = useState({
     title: "Draft",
     content: "Draft",
     public: true,
+    notebook: "",
   });
 
   let userEmail = JSON.parse(localStorage.getItem("user"));
@@ -44,12 +45,21 @@ const AddNote = (props) => {
         title: value,
         content: request.content,
         public: request.public,
-      })
+        notebook: request.notebook
+      });
     } else if (field === "content") {
       setRequest({
         title: request.title,
         content: value,
         public: request.public,
+        notebook: request.notebook
+      });
+    } else if (field === "notebook") {
+      setRequest({
+        title: request.title,
+        content: request.content,
+        public: request.public,
+        notebook: value
       });
     }
   };
@@ -58,7 +68,6 @@ const AddNote = (props) => {
     axios.put("/notes" + id, request).then(
       (response) => {
         console.log(response);
-       
       },
       (error) => {
         console.log(error);
@@ -68,7 +77,7 @@ const AddNote = (props) => {
 
   const handleEdit = () => {
     axios.get("/notes/user/" + userEmail).then((resp) => {
-      setId("/" + resp.data[resp.data.length -1].id);
+      setId("/" + resp.data[resp.data.length - 1].id);
       console.log(resp.data);
     });
   };
@@ -93,8 +102,7 @@ const AddNote = (props) => {
   const handleClick = (e) => {
     if (!clickRef.current.contains(e.target)) {
       setClicked(false);
-    }
-    else {
+    } else {
       setClicked(true);
     }
   };
@@ -114,7 +122,22 @@ const AddNote = (props) => {
         handleValue={handleValue}
         field="title"
       />
-      {clicked ? <MDEditor preview="edit" height="90vh" onChange={setValue} value={value}/> : <MDEditor.Markdown height="90vh" source={value} />}
+      {clicked ? (
+        <MDEditor
+          preview="edit"
+          height="90vh"
+          onChange={setValue}
+          value={value}
+        />
+      ) : (
+        <MDEditor.Markdown height="90vh" source={value} />
+      )}
+      <Input
+        type="input"
+        defaultValue="Notebook"
+        handleValue={handleValue}
+        field="notebook"
+      />
     </div>
   );
 };
