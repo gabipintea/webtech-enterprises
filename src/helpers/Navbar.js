@@ -8,6 +8,7 @@ import axios from "axios";
 
 const Navbar = () => {
   const [op_list, setList] = useState();
+  const [gr_list, setGroup] = useState();
 
   const NAV_DATA = [
     {
@@ -22,6 +23,13 @@ const Navbar = () => {
       pageName: "Trash",
       tagStyle: "accounts",
     },
+    {
+      id: 2,
+      pageName: "Groups",
+      tagStyle: "groups",
+      isDropdown: true,
+      list: gr_list,
+    }
   ];
 
   const [userData] = useState(JSON.parse(localStorage.getItem("user")));
@@ -49,6 +57,29 @@ const Navbar = () => {
       setList(org);
     });
     console.log(op_list);
+  }, [trigger]);
+
+  useEffect(() => {
+    axios.get("/groups").then((resp) => {      
+      const dummyNotes = resp.data.map((item) => {  
+        
+        if(item.users !== null) {
+          let useri = item.users.split(',');
+          for(var i = 0; i < useri.length; i++) {
+            if( useri[i] === userData.data.email ) {
+              return {
+                title: item.name,
+                content: item.users                
+              }
+            }
+          }
+        }
+        return {}
+      
+      })
+      setGroup(dummyNotes);
+    });
+    console.log(gr_list);
   }, [trigger]);
 
   return (
