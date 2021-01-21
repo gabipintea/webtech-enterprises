@@ -30,7 +30,7 @@ const Navbar = () => {
   const [userData] = useState(JSON.parse(localStorage.getItem("user")))
 
   useEffect(() => {
-    axios.get("/notes").then((resp) => {
+    axios.get("/notes/user/" + userData.data.email).then((resp) => {
       setList(resp.data);
     });
     console.log(op_list);

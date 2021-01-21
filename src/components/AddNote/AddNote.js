@@ -16,6 +16,9 @@ const AddNote = (props) => {
     public: true,
   });
 
+  let userEmail = JSON.parse(localStorage.getItem("user"));
+  userEmail = userEmail.data.email;
+  console.log(userEmail);
   const [id, setId] = useState("");
   const [init] = useState(true);
   const clickRef = useRef();
@@ -23,7 +26,7 @@ const AddNote = (props) => {
 
   useEffect(() => {
     if (!edit) {
-      axios.post("/notes", request).then(
+      axios.post("/notes/user/" + userEmail, request).then(
         (response) => {
           console.log(response);
           handleEdit();
@@ -64,8 +67,9 @@ const AddNote = (props) => {
   }, [id, request, value]);
 
   const handleEdit = () => {
-    axios.get("/notes").then((resp) => {
-      setId("/" + resp.data.length);
+    axios.get("/notes/user/" + userEmail).then((resp) => {
+      setId("/" + resp.data[resp.data.length -1].id);
+      console.log(resp.data);
     });
   };
 
