@@ -1,17 +1,40 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ActionButton from "../../helpers/ActionButton";
 import Input from "../../helpers/Input";
 import "./AddNote.css";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import MDEditor from "@uiw/react-md-editor";
 
-const AddNote = () => {
+const AddNote = (props) => {
+  const { edit = false } = props;
   const redirect = useHistory();
+  const [value, setValue] = useState("");
   const [request, setRequest] = useState({
-    title: "defTitle",
-    content: "defContent",
+    title: "Draft",
+    content: "",
     public: true,
   });
+
+  const [id, setId] = useState("");
+  const [init] = useState(true);
+  const mdRef = useRef();
+  const [created, setCreated] = useState(edit);
+
+  useEffect(() => {
+    if (!edit) {
+      axios.post("/notes", request).then(
+        (response) => {
+          console.log(response);
+          handleEdit();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
+  }, [init]);
+
   const handleValue = (value, field) => {
     if (field === "title") {
       setRequest({
@@ -28,8 +51,9 @@ const AddNote = () => {
     }
   };
 
-  const handleRequest = useCallback(() => {
-    axios.post("/notes", request).then(
+  const handleCreate = useCallback(() => {
+    console.log("ID", id);
+    axios.put("/notes" + id, request).then(
       (response) => {
         console.log(response);
       },
@@ -37,35 +61,40 @@ const AddNote = () => {
         console.log(error);
       }
     );
-    redirect.go(0);
+  }, [id, request, value]);
+
+  const handleEdit = () => {
+    axios.get("/notes").then((resp) => {
+      setId("/" + resp.data.length);
+    });
+  };
+
+  useEffect(() => {
+    console.log(value);
+    if (value !== "") {
+      handleValue(value, "content");
+    }
+  }, [value]);
+
+  useEffect(() => {
+    const handleSave = () => {
+      console.log(request);
+
+      handleEdit();
+      handleCreate();
+    };
+    if (request.content !== "defContent") handleSave();
   }, [request]);
 
   return (
     <div className="noteContainer">
-      <div className="noteInputs">
-        <div className="formTitle">Add Note</div>
-        <div className="noteInput">
-          <Input
-            type="text"
-            defaultValue="Note Title"
-            handleValue={handleValue}
-            field="title"
-          />
-        </div>
-        <div className="noteInput ">
-          <Input
-            type="text"
-            defaultValue="Note Content"
-            handleValue={handleValue}
-            field="content"
-          />
-        </div>
-        <div className="submitContainer">
-          <div className="submit" onClick={() => handleRequest()}>
-            <ActionButton text="SUBMIT" />
-          </div>
-        </div>
-      </div>
+      <Input
+        type="text"
+        defaultValue="Title"
+        handleValue={handleValue}
+        field="title"
+      />
+      <MDEditor ref={mdRef} preview="edit" height="90vh" onChange={setValue} />
     </div>
   );
 };
