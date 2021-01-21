@@ -114,7 +114,7 @@ const AddNote = (props) => {
         handleValue={handleValue}
         field="title"
       />
-      {clicked ? <MDEditor preview="edit" height="90vh" onChange={setValue} value={value}/> : <MDEditor.Markdown height="90vh" source={value} />}
+      {clicked ? <MDEditor height="90vh" preview="edit" onChange={setValue} value={value}/> : <MDEditor height="90vh" value={value} preview="preview" />}
     </div>
   );
 };

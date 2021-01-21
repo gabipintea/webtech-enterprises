@@ -18,14 +18,9 @@ const Navbar = () => {
       tagStyle: "accounts",
       isDropdown: true,
       list: op_list,
-    },
+    },    
     {
       id: 1,
-      pageName: "Trash",
-      tagStyle: "accounts",
-    },
-    {
-      id: 2,
       pageName: "Groups",
       tagStyle: "groups",
       isDropdown: true,

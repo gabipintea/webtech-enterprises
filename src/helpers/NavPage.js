@@ -28,7 +28,7 @@ const NavPage = (props) => {
         onClick={() => {
           setId(id);
           if (isNote) {
-            setContent(<ViewNote title={note.title} content={note.content} />);
+            setContent(<ViewNote title={note.title} content={note.content} id={note.id} />);
           }
         }}
         id={navStyle}

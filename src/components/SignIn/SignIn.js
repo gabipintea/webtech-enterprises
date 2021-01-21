@@ -88,19 +88,10 @@ const SignIn = () => {
           <div className="logoContainer">
           </div>
           <div className="messageSpan">LOG IN</div>
-          <div className="inputFields">
-            <div className="inputField">
-              <Input
-                type="text"
-                defaultValue="username"
-              />
-            </div>
-            <div className="inputField" id="second">
-              <Input type="password" defaultValue="password" />
-            </div>
+          <div className="inputFields">            
 
             <div className="buttonContainer" onClick={() => {LogIn()} }>
-              <ActionButton text="CONTINUĂ" />
+              <ActionButton text="LOG IN WITH GOOGLE" />
             </div>
 
           </div>
