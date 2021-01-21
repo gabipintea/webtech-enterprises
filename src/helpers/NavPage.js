@@ -13,7 +13,11 @@ const NavPage = (props) => {
     list = [],
     navStyle = "",
     setContent = () => {},
-    note = {title: "", content: ""}
+    note = {title: "", content: ""},
+    setHidden = () => {},
+    isHidden = false,  
+    isNotebook = false,
+    setNb = () => {}
   } = props;
   const [isSelected, setSelect] = useState(false);
 
@@ -29,6 +33,14 @@ const NavPage = (props) => {
           setId(id);
           if (isNote) {
             setContent(<ViewNote title={note.title} content={note.content} />);
+          }
+          else if(isNotebook)
+          {
+            setHidden(false);
+            setNb(note.content)
+          }
+          else {
+            setHidden(true)
           }
         }}
         id={navStyle}
@@ -49,6 +61,10 @@ const NavPage = (props) => {
               navStyle="dropItem"
               isNote={false}
               setContent={setContent}
+              isNotebook={item.isNotebook }
+              setHidden={setHidden}
+              isHidden={isHidden}
+              setNb={setNb}
             />
           );
         })}

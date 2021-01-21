@@ -5,6 +5,7 @@ import ActionButton from "./ActionButton";
 import "./Navbar.css";
 import NavPage from "./NavPage";
 import axios from "axios";
+import NotebookWrapper from "../components/NotebookWrapper/NotebookWrapper";
 
 const Navbar = () => {
   const [op_list, setList] = useState();
@@ -20,11 +21,6 @@ const Navbar = () => {
     },
     {
       id: 1,
-      pageName: "Trash",
-      tagStyle: "accounts",
-    },
-    {
-      id: 2,
       pageName: "Groups",
       tagStyle: "groups",
       isDropdown: true,
@@ -36,6 +32,8 @@ const Navbar = () => {
   const [trigger, setTrigger] = useState();
   const [clickId, setId] = useState();
   const [content, setContent] = useState(<DemoPage />);
+  const [isHidden, setHidden] = useState(true);
+  const [activeNb, setNb] = useState();
 
   useEffect(() => {
     axios.get("/notes/user/" + userData.data.email).then((resp) => {
@@ -45,6 +43,7 @@ const Navbar = () => {
           org.push({
             title: resp.data[i].notebook,
             content: [resp.data[i]],
+            isNotebook : true
           });
         } else {
           org.find(x => x.title === resp.data[i].notebook).content = [
@@ -97,7 +96,7 @@ const Navbar = () => {
             </div>
             <div
               className="addNotebook"
-              onClick={() => setContent(<AddNote />)}
+              onClick={() => setContent(<AddNote note={{ title: "", content: "a", notebook: ""}}/>)}
             >
               <ActionButton text="Add Note" />
             </div>
@@ -114,6 +113,10 @@ const Navbar = () => {
                     isDropdown={item.isDropdown}
                     list={item.list}
                     setContent={setContent}
+                    setHidden={setHidden}
+                    isHidden={isHidden}
+                    setNb={setNb}
+                 
                   />
                 );
               })}
@@ -124,7 +127,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-      <div className="contentContainer">{content}</div>
+      <div className="contentContainer">{<NotebookWrapper setContent={setContent} content={content} isHidden={isHidden} nbList={activeNb}/>}</div>
     </div>
   );
 };

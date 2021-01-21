@@ -130,3 +130,15 @@
   width: 100%;
   margin-left: 365px;
 }
+
+#hideNav {
+  display: none;
+}
+
+#marginSet {
+  margin-left: 0;
+}
+
+#secondNav {
+  background-color: var(--justBlue);
+}

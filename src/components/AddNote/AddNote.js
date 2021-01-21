@@ -7,11 +7,16 @@ import { useHistory } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
 
 const AddNote = (props) => {
-  const { edit = false } = props;
+  const {
+    edit = false,
+    note = { title: "Draft", content: "a", notebook: "" },
+    noteId = "",
+    init
+  } = props;
   const redirect = useHistory();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(note.content);
   const [request, setRequest] = useState({
-    title: "Draft",
+    title: note.title,
     content: "Draft",
     public: true,
     notebook: "",
@@ -20,24 +25,10 @@ const AddNote = (props) => {
   let userEmail = JSON.parse(localStorage.getItem("user"));
   userEmail = userEmail.data.email;
   console.log(userEmail);
-  const [id, setId] = useState("");
-  const [init] = useState(true);
+  const [id, setId] = useState(noteId);
   const clickRef = useRef();
   const [clicked, setClicked] = useState(true);
-
-  useEffect(() => {
-    if (!edit) {
-      axios.post("/notes/user/" + userEmail, request).then(
-        (response) => {
-          console.log(response);
-          handleEdit();
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-    }
-  }, [init]);
+  console.log("INFO", id, note, value);
 
   const handleValue = (value, field) => {
     if (field === "title") {
@@ -45,21 +36,21 @@ const AddNote = (props) => {
         title: value,
         content: request.content,
         public: request.public,
-        notebook: request.notebook
+        notebook: request.notebook,
       });
     } else if (field === "content") {
       setRequest({
         title: request.title,
         content: value,
         public: request.public,
-        notebook: request.notebook
+        notebook: request.notebook,
       });
     } else if (field === "notebook") {
       setRequest({
         title: request.title,
         content: request.content,
         public: request.public,
-        notebook: value
+        notebook: value,
       });
     }
   };
@@ -77,21 +68,41 @@ const AddNote = (props) => {
 
   const handleEdit = () => {
     axios.get("/notes/user/" + userEmail).then((resp) => {
-      setId("/" + resp.data[resp.data.length - 1].id);
-      console.log(resp.data);
+      let currentId;
+      if (edit) currentId = noteId;
+      else  currentId = "/" + resp.data[resp.data.length - 1].id;
+      setId(currentId);
+      console.log(currentId);
     });
   };
 
   useEffect(() => {
+    if (!edit) {
+      axios.post("/notes/user/" + userEmail, request).then(
+        (response) => {
+          console.log(response);
+          handleEdit();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }else {
+      handleEdit()
+      console.log(init)
+    }
+  }, [init]);
+
+  useEffect(() => {
     console.log(value);
-    if (value !== "") {
+    if (true) {
       handleValue(value, "content");
     }
   }, [value]);
 
   useEffect(() => {
     const handleSave = () => {
-      console.log(request);
+      console.log("HERE ----------", request);
 
       handleEdit();
       handleCreate();
@@ -118,9 +129,10 @@ const AddNote = (props) => {
     <div ref={clickRef} className="noteContainer">
       <Input
         type="text"
-        defaultValue="Title"
+        defaultValue={note.title ? note.title: "Title"}
         handleValue={handleValue}
         field="title"
+      
       />
       {clicked ? (
         <MDEditor
@@ -130,13 +142,19 @@ const AddNote = (props) => {
           value={value}
         />
       ) : (
-        <MDEditor.Markdown height="90vh" source={value} />
+        <MDEditor
+          preview="preview"
+          height="90vh"
+          onChange={setValue}
+          value={value}
+        />
       )}
       <Input
         type="input"
-        defaultValue="Notebook"
+        defaultValue={note.notebook ? note.notebook: "Notebook"}
         handleValue={handleValue}
         field="notebook"
+        
       />
     </div>
   );
