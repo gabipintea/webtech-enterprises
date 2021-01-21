@@ -4,7 +4,8 @@ const Sequelize = require('sequelize')
 const path = require('path')
 const Op = Sequelize.Op
 const cors = require('cors')
-const { ForeignKeyConstraintError } = require('sequelize')
+const { ForeignKeyConstraintError, json } = require('sequelize')
+const { exists } = require('fs')
 
 const sequelize = new Sequelize('webtech_enterprises', 'webtech_enterprises', 'echipadesoc', {
     dialect: 'mysql'
@@ -16,9 +17,9 @@ const User = sequelize.define('user', {
     username: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate: {
-            len: [3, 20]
-        }
+        // validate: {
+        //     len: [3, 20]
+        // }
     },
     email: {
         type: Sequelize.STRING,
@@ -26,16 +27,24 @@ const User = sequelize.define('user', {
     },
     password: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: {
-            len: [6, 20]
-        }
+        allowNull: true,
+        // validate: {
+        //     len: [6, 20]
+        // }
     },
     is_admin: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        allowNull: true
     },
     notes: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    photo: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    token: {
         type: Sequelize.STRING,
         allowNull: true
     }
@@ -45,9 +54,9 @@ const Note = sequelize.define('note', {
     title: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate: {
-            len: [3, 25]
-        }
+        // validate: {
+        //     len: [3, 25]
+        // }
     },
     content: {
         type: Sequelize.TEXT,
@@ -83,7 +92,7 @@ app.use(cors())
 app.use(bodyParser.json())
 
 //Create database
-app.get('/create', async(req, res, next) => {
+app.get('/create', async (req, res, next) => {
     try {
         await sequelize.sync({ force: true })
         res.status(201).json({ message: 'created' })
@@ -94,7 +103,7 @@ app.get('/create', async(req, res, next) => {
 
 //#region USERS
 //Users API
-app.get('/users', async(req, res, next) => {
+app.get('/users', async (req, res, next) => {
     const query = {
         where: {}
     }
@@ -107,7 +116,7 @@ app.get('/users', async(req, res, next) => {
     }
 })
 
-app.post('/users', async(req, res, next) => {
+app.post('/users', async (req, res, next) => {
     const errors = [];
 
     const user = {
@@ -115,34 +124,37 @@ app.post('/users', async(req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         photo: req.body.photo,
-        is_admin: req.body.is_admin,
-        notes: req.body.notes
+        is_admin: req.body.is_admin,        
+        token: req.body.token
     }
 
-    if (!user.username || !user.email || !user.password || (user.is_admin !== true && user.is_admin) !== false || !user.notes) {
-        errors.push("Missing data. Please complete all fields!")
-    }
+    // if (!user.username || !user.email || !user.password || (user.is_admin !== true && user.is_admin) !== false || !user.notes) {
+    //     errors.push("Missing data. Please complete all fields!")
+    // }
 
-    if (!/^[a-zA-Z0-9]+$/.test(user.username)) {
-        errors.push("Invalid username!")
-    }
+    // if (!/^[a-zA-Z0-9]+$/.test(user.username)) {
+    //     errors.push("Invalid username!")
+    // }
 
-    if (!/[a-zA-Z0-9_\.-]+@stud.ase.ro$/.test(user.email)) {
-        errors.push("Invalid email!")
-    }
+    // if (!/[a-zA-Z0-9_\.-]+@stud.ase.ro$/.test(user.email)) {
+    //     errors.push("Invalid email!")
+    // }
 
-    if (!/^[0-9\/]+$/.test(user.notes)) {
-        errors.push("Invalid notes format!")
-    }
+    // if (!/^[0-9\/]+$/.test(user.notes)) {
+    //     errors.push("Invalid notes format!")
+    // }
 
-    const exists_user = await User.findOne({ where: { username: req.body.username } });
-    if (exists_user) {
-        errors.push("Username already in use!");
-    }
+    // const exists_user = await User.findOne({ where: { username: req.body.username } });
+    // if (exists_user) {
+    //     errors.push("Username already in use!");
+    // }
 
     const exists_email = await User.findOne({ where: { email: req.body.email } });
+    console.log(exists_email)
     if (exists_email) {
         errors.push("Email already in use!");
+        await User.update(user, { where: { id: exists_email.dataValues.id } })
+        res.status(202).json({ message: 'accepted' })
     }
 
     if (errors.length === 0) {
@@ -161,7 +173,7 @@ app.post('/users', async(req, res, next) => {
 
 
 
-app.get('/users/:sid', async(req, res, next) => {
+app.get('/users/:sid', async (req, res, next) => {
     try {
         const user = await User.findByPk(req.params.sid)
         if (user) {
@@ -175,7 +187,7 @@ app.get('/users/:sid', async(req, res, next) => {
     }
 })
 
-app.put('/users/:sid', async(req, res, next) => {
+app.put('/users/:sid', async (req, res, next) => {
     try {
         const user = await User.findByPk(req.params.sid)
         console.log(user)
@@ -258,25 +270,78 @@ app.put('/users/:sid', async(req, res, next) => {
     }
 })
 
-app.delete('/users/:sid', async(req, res, next) => {
-        try {
-            const user = await User.findByPk(req.params.sid)
-            if (user) {
-                await user.destroy()
-                res.status(202).json({ message: 'deleted' })
-            } else {
-                res.status(404).json({ message: 'not found' })
-            }
-        } catch (err) {
-            next(err)
-
+app.delete('/users/:sid', async (req, res, next) => {
+    try {
+        const user = await User.findByPk(req.params.sid)
+        if (user) {
+            await user.destroy()
+            res.status(202).json({ message: 'deleted' })
+        } else {
+            res.status(404).json({ message: 'not found' })
         }
-    })
-    //#endregion USERS
+    } catch (err) {
+        next(err)
+
+    }
+})
+
+//Update Auth Token
+app.put('/users/:sid/:stoken', async (req, res, next) => {
+    try {
+        const user = await User.findByPk(req.params.sid)
+        let rettoken = req.params.stoken
+
+        if (user) {
+            const errors = [];
+
+            const newUser = {
+                username: user.username,
+                email: user.email,
+                password: user.password,
+                photo: user.photo,
+                is_admin: user.is_admin,
+                notes: user.notes,
+                token: rettoken
+            }
+
+            if (!rettoken || rettoken == "") {
+                errors.push("Invalid token!")
+            }
+
+            if (errors.length === 0) {
+                await User.update(newUser, { where: { id: req.params.sid } })
+                res.status(202).json({ message: 'accepted' })
+            } else {
+                res.status(400).send(errors)
+            }
+
+        } else {
+            res.status(404).json({ message: 'not found' })
+        }
+    } catch (err) {
+        next(err)
+
+    }
+})
+
+app.get('/users/token/:sid', async (req, res, next) => {
+    try {
+        const user = await User.findByPk(req.params.sid)
+        if (user) {
+            res.status(200).json(user.token)
+        } else {
+            res.status(404).json({ message: 'not found' })
+        }
+    } catch (err) {
+        next(err)
+
+    }
+})
+//#endregion USERS
 
 //#region NOTES
 //Notes API
-app.get('/notes', async(req, res, next) => {
+app.get('/notes', async (req, res, next) => {
     const query = {
         where: {}
     }
@@ -287,7 +352,36 @@ app.get('/notes', async(req, res, next) => {
         next(err)
     }
 })
-app.post('/notes', async(req, res, next) => {
+
+app.get('/notes/user/:semail', async (req, res, next) => {
+    const userQuery = {
+        where: {
+            email: req.params.semail
+        }
+    }
+    try {
+        const user = await User.findAll(userQuery)
+        //console.log("FOUND HERE:" + user[0].notes)
+
+        var notesIds = user[0].notes.split(",");
+
+        const query = {
+            where:
+            {
+                id: notesIds
+            }
+        }
+        try {
+            const notes = await Note.findAll(query)
+            res.status(200).json(notes)
+        } catch (err) {
+            next(err)
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+app.post('/notes', async (req, res, next) => {
     const errors = [];
 
     const note = {
@@ -295,7 +389,7 @@ app.post('/notes', async(req, res, next) => {
         content: req.body.content,
         notebook: req.body.notebook,
         tags: req.body.tags,
-        public: req.body.public,
+        public: req.body.public
     }
 
     if (!note.title || (note.public !== true && note.public !== false)) {
@@ -319,7 +413,7 @@ app.post('/notes', async(req, res, next) => {
     }
 })
 
-app.get('/notes/:sid', async(req, res, next) => {
+app.get('/notes/:sid', async (req, res, next) => {
     try {
         const note = await Note.findByPk(req.params.sid)
         if (note) {
@@ -333,7 +427,7 @@ app.get('/notes/:sid', async(req, res, next) => {
     }
 })
 
-app.put('/notes/:sid', async(req, res, next) => {
+app.put('/notes/:sid', async (req, res, next) => {
     const note = await Note.findByPk(req.params.sid)
     if (note) {
         let errors = []
@@ -388,25 +482,25 @@ app.put('/notes/:sid', async(req, res, next) => {
     }
 })
 
-app.delete('/notes/:sid', async(req, res, next) => {
-        try {
-            const note = await Note.findByPk(req.params.sid)
-            if (note) {
-                await note.destroy()
-                res.status(202).json({ message: 'deleted' })
-            } else {
-                res.status(404).json({ message: 'not found' })
-            }
-        } catch (err) {
-            next(err)
-
+app.delete('/notes/:sid', async (req, res, next) => {
+    try {
+        const note = await Note.findByPk(req.params.sid)
+        if (note) {
+            await note.destroy()
+            res.status(202).json({ message: 'deleted' })
+        } else {
+            res.status(404).json({ message: 'not found' })
         }
-    })
-    //#endregion NOTES
+    } catch (err) {
+        next(err)
+
+    }
+})
+//#endregion NOTES
 
 //#region GROUPS
 //Groups API
-app.get('/groups', async(req, res, next) => {
+app.get('/groups', async (req, res, next) => {
     const query = {
         where: {}
     }
@@ -418,7 +512,7 @@ app.get('/groups', async(req, res, next) => {
     }
 })
 
-app.post('/groups', async(req, res, next) => {
+app.post('/groups', async (req, res, next) => {
     const errors = [];
 
     const group = {
@@ -451,7 +545,7 @@ app.post('/groups', async(req, res, next) => {
     }
 })
 
-app.get('/groups/:sid', async(req, res, next) => {
+app.get('/groups/:sid', async (req, res, next) => {
     try {
         const group = await Group.findByPk(req.params.sid)
         if (group) {
@@ -465,7 +559,7 @@ app.get('/groups/:sid', async(req, res, next) => {
     }
 })
 
-app.put('/groups/:sid', async(req, res, next) => {
+app.put('/groups/:sid', async (req, res, next) => {
     const group = await Group.findByPk(req.params.sid)
     if (group) {
 
@@ -508,7 +602,7 @@ app.put('/groups/:sid', async(req, res, next) => {
     }
 })
 
-app.delete('/groups/:sid', async(req, res, next) => {
+app.delete('/groups/:sid', async (req, res, next) => {
     try {
         const group = await Group.findByPk(req.params.sid)
         if (group) {
@@ -526,10 +620,10 @@ app.delete('/groups/:sid', async(req, res, next) => {
 //#endregion GROUPS
 
 app.use((err, req, res, next) => {
-        console.warn(err)
-        res.status(500).json({ message: 'server error' })
-    })
-    //#endregion GROUPS
+    console.warn(err)
+    res.status(500).json({ message: 'server error' })
+})
+//#endregion GROUPS
 
 
 
