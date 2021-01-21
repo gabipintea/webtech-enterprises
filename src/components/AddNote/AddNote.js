@@ -7,19 +7,19 @@ import { useHistory } from "react-router-dom";
 import MDEditor from "@uiw/react-md-editor";
 
 const AddNote = (props) => {
-  const { edit = false } = props;
+  const { edit = false} = props;
   const redirect = useHistory();
   const [value, setValue] = useState("");
   const [request, setRequest] = useState({
     title: "Draft",
-    content: "",
+    content: "Draft",
     public: true,
   });
 
   const [id, setId] = useState("");
   const [init] = useState(true);
-  const mdRef = useRef();
-  const [created, setCreated] = useState(edit);
+  const clickRef = useRef();
+  const [clicked, setClicked] = useState(true);
 
   useEffect(() => {
     if (!edit) {
@@ -41,7 +41,7 @@ const AddNote = (props) => {
         title: value,
         content: request.content,
         public: request.public,
-      });
+      })
     } else if (field === "content") {
       setRequest({
         title: request.title,
@@ -52,10 +52,10 @@ const AddNote = (props) => {
   };
 
   const handleCreate = useCallback(() => {
-    console.log("ID", id);
     axios.put("/notes" + id, request).then(
       (response) => {
         console.log(response);
+       
       },
       (error) => {
         console.log(error);
@@ -83,18 +83,34 @@ const AddNote = (props) => {
       handleEdit();
       handleCreate();
     };
-    if (request.content !== "defContent") handleSave();
+    if (request.content !== "Draft") handleSave();
   }, [request]);
 
+  const handleClick = (e) => {
+    if (!clickRef.current.contains(e.target)) {
+      setClicked(false);
+    }
+    else {
+      setClicked(true);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  });
+
   return (
-    <div className="noteContainer">
+    <div ref={clickRef} className="noteContainer">
       <Input
         type="text"
         defaultValue="Title"
         handleValue={handleValue}
         field="title"
       />
-      <MDEditor ref={mdRef} preview="edit" height="90vh" onChange={setValue} />
+      {clicked ? <MDEditor preview="edit" height="90vh" onChange={setValue} value={value}/> : <MDEditor.Markdown height="90vh" source={value} />}
     </div>
   );
 };
