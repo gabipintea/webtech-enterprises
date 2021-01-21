@@ -77,6 +77,10 @@ const Note = sequelize.define('note', {
 })
 
 const Group = sequelize.define('group', {
+    name: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     users: {
         type: Sequelize.STRING,
         allowNull: false
