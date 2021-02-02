@@ -3,7 +3,7 @@
 Topic (#5):
 ### Web app for taking notes during courses/labs
 
-Web application project of "WebTech™ Enterprises" team, part of the WT course from ASE.
+Web application project of "WebTech™ Enterprises" team, part of the Web Technologies course from ASE.
 
 General requirements: https://drive.google.com/file/d/1X2rf4G3B-Yyw-DYNiRS5pds5i8VAVi83/view?usp=sharing
 
